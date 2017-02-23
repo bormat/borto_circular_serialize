@@ -2,7 +2,7 @@
 This NPM module allow circular reference between object contrary to JSON.stringify
 
 Instalation:
-  npm install borto_circular_serialize
+    npm install borto_circular_serialize
   
   
 First of all import the module:
