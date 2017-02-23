@@ -1,0 +1,18 @@
+{
+  "name": "borto_circular_serialize",
+  "version": "1.0.1",
+  "description": "Allow to serialize and parse Object can also preserve classes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bortolaso Mathieu <mathieu.bortolaso@gmail.com> (http://motelavigna.co)",
+  "license": "free to use, if modified just let the link to my github in code as comment",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
+  "scripts": {
+	  "test": "mocha"
+	}
+}
