@@ -16,9 +16,9 @@ First of all import the module:
 This is how to save an object as string:
 
     var a = {b:25,c:6};
-		a.d=a;
-    
-		var stringBackup = serializeObjet(a);
+    a.d=a; //a contain himself at d position
+    var stringBackup = serializeObjet(a);
     
  And to restore:
-    var restoredObject = parseChaine(b)
+ 	
+	var restoredObject = parseChaine(b)
