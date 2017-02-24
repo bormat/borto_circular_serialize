@@ -1,6 +1,6 @@
-//length ne se calcule plus tout seul une foix hérité de tableau il faut le reprogrammer
-//notation en crochet pour l'ajout(push) prohibé car on ne peux recaculé length;
-//reste possible les modification et accès en lecture via crochets
+/** 
+* it is just a class that extend Array to get and set easily last Values 
+*/
 
 function Tab(){
 	Object.defineProperties(this, {
