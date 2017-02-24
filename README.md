@@ -27,11 +27,13 @@ The content will be
 As you can see when an element can not be stored because of circular references or multiple references to the same element, we replace it.
 
 And to restore:
-	var restoredObject = parseStr(b)
+       
+       var restoredObject = parseStr(b)
 
 Sometimes you want keep the class of object you serialize.
 
 Just add the property serializationName to your object or your class
+
 	var theClass = function(){};
 	theClass.prototype.serializationName = "theClass";
 	var d = new theClass()
@@ -42,6 +44,7 @@ Just add the property serializationName to your object or your class
 	var encodeObj = serializeObj(d)
 
 And to restore you have to pass the prototype that match with the serialization name as second argument
+
 	var decodeObj = parseStr(encodeObj, {
 		theClass:  theClass.prototype/*sameName that serializationName property*/
 	});
