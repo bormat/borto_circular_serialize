@@ -1,6 +1,6 @@
 {
   "name": "borto_circular_serialize",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Allow to serialize and parse Object can also preserve classes",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,21 @@
   "license": "free to use, if modified just let the link to my github in code as comment",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "babel-core": "~6.18.2",
+    "babel-loader": "~6.2.8",
+    "babel-preset-latest": "~6.16.0",
+    "babel-preset-react": "~6.16.0",
+    "css-loader": "~0.26.0",
+    "extract-text-webpack-plugin": "~1.0.1",
+    "node-sass": "~3.13.0",
+    "react": "~15.4.1",
+    "react-dom": "~15.4.1",
+    "react-hot-loader": "~3.0.0-beta.6",
+    "sass-loader": "~4.0.2",
+    "style-loader": "~0.13.1",
+    "webpack": "~1.13.3",
+    "webpack-dev-server": "~1.16.2"
   },
   "scripts": {
 	  "test": "mocha",
