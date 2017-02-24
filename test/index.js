@@ -8,6 +8,7 @@
 		var a = {b:25,c:6};
 		a.d=a;
 		var b = serializeObj(a);
+		console.log(b)
 		var retCaseDep = parseStr(b)
 		retCaseDep.b.should.equal(25);
 		retCaseDep.c.should.equal(6);
