@@ -1,156 +1,179 @@
-	/*Ce module peut être utilisé à part pour sérialiser n'importe quel objet, chaine, nombre, tableau
-	une option, un type manquant bormat2@gmail.com  by Bortolaso Mathieu
-	open source avec obligation de garder cet entête*/	
-	
+	/*
+	* This library provide 2 Object serializeObj and parseStr that allow to transform a cyclic object into a string
+	* and decode this string	
+	* @author Bortolaso Mathieu
+	* @email mathieu.bortolaso@gmail.com
+	* @country France
+	*/
+
+	var MyArray = require('./Tab').default;
+
 	/*****************************************************************************************/
-	/************************Objet et contenu enumerable vers Chaine**************************/
+	/***********Convert object into String, non enumerable properties are ignored ************/
 	/*****************************************************************************************/
-	var Tab = require('./Tab').default;
-	var serializeObjet = function(theMainObject){
+	var serializeObj = function(theMainObject){
 		if(!(theMainObject instanceof Object)){
-			throw "veuillez passer un objet et non un type primitif"
+			throw "Please pass an object and not a primitive"
 		}
-		var tab=[];
-		function addSlashes(ch){
-			if (typeof ch == "string"){
-				ch = ch.replace(/\\/g,"\\\\").replace(/\'/g,"\\'").replace(/\"/g,"\\\"");
+		var allObj=[];
+		function addSlashes(str){
+			if (typeof str == "string"){
+				str = str.replace(/\\/g,"\\\\").replace(/\'/g,"\\'").replace(/\"/g,"\\\"");
 			}
-			return ch
+			return str
 		}
 		
 		//pseudo classe		
 		var Reference = {
-			tabDejaLier:[],//pour chaque id  true si referrencé pls fois sinon false
+			isLinkedToMultipleObject:[],//true if linked to multipleObject			
 			
-			//tabNbSupp pour chaque id le nombre d'objet non afficher au position précédente
-			calculerTabNbSupp : function(){
-				var tabNbSupp = Reference.tabNbSupp = [0];
-				for(var i=1; i<Reference.tabDejaLier.length; i++){
-					tabNbSupp[i] = tabNbSupp[i - 1]
-					if (!Reference.tabDejaLier[i]){
-						tabNbSupp[i]++;
+			/**
+			*	for each object that will be in the array, we need to know the number of previous
+			*   object that will not be conserved in the array because they appear only once 
+			*   so we don't need to create a reference
+			*/
+			calcultateNbOjectNotInTab : function(){
+				var nbObjectNotInTab = Reference.nbObjectNotInTab = [0];
+				for(var i=1; i<Reference.isLinkedToMultipleObject.length; i++){
+					nbObjectNotInTab[i] = nbObjectNotInTab[i - 1]
+					if (!Reference.isLinkedToMultipleObject[i]){
+						nbObjectNotInTab[i]++;
 					}
 				}
 			},
-			//constructeur
-			lier:function(ref,dejalier){
+			
+			/**
+			*	create an instanceOf reference that has a ref property
+			*	ref is the position in the array of the object
+			*	note that the toString is automatically called on this object
+			* 	when we do ".join('')" on an array that contains a Reference
+			*/
+			link:function(ref,alreadyLinked){
 				var obj = Object.create(Reference.prototype);
-				obj.ref = (ref != undefined) ? ref : tab.length ;
-				Reference.tabDejaLier[ref]=Boolean(dejalier);
+				obj.ref = (ref != undefined) ? ref : allObj.length ;
+				Reference.isLinkedToMultipleObject[ref]= alreadyLinked;
 				return obj;
 			},
 			prototype:{			
+				/**
+				*	Called on ".join('')"
+				*/
 				toString:function(){
-					if ( Reference.tabDejaLier[this.ref]){
-						var i = this.ref - Reference.tabNbSupp[this.ref];
-						return "'tab["+i+"]'";
+					if ( Reference.isLinkedToMultipleObject[this.ref]){
+						var i = this.ref - Reference.nbObjectNotInTab[this.ref];
+						return "'allObj["+i+"]'";
 					}else{
-						return tab[this.ref].join("")
+						return allObj[this.ref].join("")
 					}
 				}
 			}	
 		}
 		
-		function genererTableauDeChaine(obj){
+		/**
+		* transform an object to a json string
+		*/
+		function createStringArray(obj){
 			if(obj.serializationName){
-				obj.serializationName = obj.serializationName;// ceci n'est pas inutile __proto__ vers objet
+				obj.serializationName = obj.serializationName;// not useless __proto__ to object
 			}else if(obj instanceof Array){
-				obj.serializationName = "Array"; //non utilisé dans notre code mais autant faire une bibliotèque complète
+				obj.serializationName = "Array";
 			}
-			obj.myid = tab.push(obj) - 1;
-			var chaine = new Tab("{");
+			obj.bortoSerializeId = allObj.push(obj) - 1;
+			var str = new MyArray("{");
 			for(var i in obj){
-				if (i != "myid" && obj.hasOwnProperty(i)){
-					chaine.push(i,":");
+				if (i != "bortoSerializeId" && obj.hasOwnProperty(i)){
+					str.push(i,":");
 					if(typeof obj[i] == "number" || obj[i] instanceof Function){
-							chaine.push(obj[i]);
+							str.push(obj[i]);
 					}else if ( obj[i] instanceof Object){
-						var dejaLier = obj[i].myid != undefined;
-						chaine.push(Reference.lier(obj[i].myid, dejaLier));
-						if (!dejaLier){
-							genererTableauDeChaine(obj[i]);
+						var alreadyLinked = obj[i].bortoSerializeId != undefined;
+						str.push(Reference.link(obj[i].bortoSerializeId, alreadyLinked));
+						if (!alreadyLinked){
+							createStringArray(obj[i]);
 						}
-					}else{
-						chaine.push("'",addSlashes(obj[i]),"'");
+					}else{// it is a string
+						str.push("'",addSlashes(obj[i]),"'");
 					}					
-					chaine.push(",\n");
+					str.push(",\n");
 				}
 			}
-			chaine.last("}");//que c'est beau last pour écraser les virgules
-			tab[obj.myid] = chaine;
+			if(obj.length){// usefull for fake array that extend Array
+				str.push('length:',obj.length,",\n")
+			}
+			str.last("}");//really good to remove the last comas
+			allObj[obj.bortoSerializeId] = str;
 		}
 		function deleteMyid(obj){
-			if(obj && obj.myid != undefined){
-				delete obj.myid;
+			if(obj && obj.bortoSerializeId != undefined){
+				delete obj.bortoSerializeId;
 				for(var i in obj){
 					if(obj.hasOwnProperty(i)){
-							deleteMyid(obj[i]);
+						deleteMyid(obj[i]);
 					}
 				}
 			}
 		}
 
-		genererTableauDeChaine(theMainObject);
+		createStringArray(theMainObject);
 		deleteMyid(theMainObject);	
-		Reference.calculerTabNbSupp();		
-		for (var i in tab){
-			tab[i] = tab[i].join("");
-		}
-		tab.toString=function(){
-			var toReturn = new Tab;
-			toReturn.push("[");
-			for (var i = 0; i<tab.length ;i++){
-				if( i==0 || Reference.tabDejaLier[i] ){
-					toReturn.push(tab[i],",");
-				}
+		Reference.calcultateNbOjectNotInTab();		
+		for (var i in allObj){
+			if(allObj.hasOwnProperty(i)){
+				allObj[i] = allObj[i].join("");
 			}
-			toReturn.last("]")
-			return toReturn.join("");
 		}
-	
-		return ""+tab;
+		var toReturn = new MyArray;
+		toReturn.push("[");
+		for (var i = 0; i<allObj.length ;i++){
+			if( i==0 || Reference.isLinkedToMultipleObject[i] ){
+				toReturn.push(allObj[i],",");
+			}
+		}
+		toReturn.last("]")
+		return toReturn.join("");
 	}
 
 
 	/*****************************************************************************************/
-	/************************************Chaine vers Objet************************************/
+	/************************************Str vers Objet************************************/
 	/*****************************************************************************************/
 
 		
-	var parseChaine = function(chaine,prototypes){
-		
+	var parseStr = function(str,prototypes){
+		var allObj;
 		//function principal
-		function parse(chaine){
-			eval("tab="+chaine);
-			tab = genererHeritage2(tab)	
-			relierRef(tab[0]);
-			nettoyage(tab[0]);
+		function parse(str){
+			eval("allObj="+str);//we get an array from the string
+			allObj = createInheritance(allObj)//replace object by object of the good prototype
+			refToRealObject(allObj[0]);// we linked together objects
+			clear(allObj[0]); // we remove useless properties
 		}
 		
-		function relierRef(obj){
-			obj.relier=true;
+		function refToRealObject(obj){
+			function containAReference(obj,prop){
+				return  prop && obj[prop] && obj[prop].indexOf && obj[prop].indexOf("allObj[") != -1 
+			}
+			obj.isLinked=true;
 			for( var prop in obj){
 				if(obj.hasOwnProperty(prop)){
-					if (contientUneRef(obj,prop)){
+					if (containAReference(obj,prop)){
 						eval ("obj[prop]="+ obj[prop]);
 					}
-					if( obj[prop] instanceof Object && !obj[prop].relier){
-						relierRef(obj[prop])
+					if( obj[prop] instanceof Object && !obj[prop].isLinked){
+						refToRealObject(obj[prop])
 					}
 				}
 			}
 		}
 			
-		function contientUneRef(obj,prop){
-			return  prop && obj[prop] && obj[prop].indexOf && obj[prop].indexOf("tab[") != -1 
-		}
-		
-		function genererHeritage2(unObj){
-			if (unObj.heritageFait || !(unObj instanceof Object) ){
-				//unObj.heritageFait=false;
+		/*
+		* Replace all object by object of the good prototype in the array and in nested properties
+		*/
+		function createInheritance(unObj){
+			if (unObj.inheritanceDone || !(unObj instanceof Object) ){
 				return unObj;
 			}	
-			unObj.heritageFait=true;
+			unObj.inheritanceDone = true;
 			var newObj;
 			if(unObj.serializationName == 'Array'){
 				newObj = []
@@ -161,32 +184,35 @@
 					newObj = {}
 				}
 			}
-
-			// on remmet les infos
+			// we copy information to newObj
 			for (var i in unObj){
-				newObj[i] = genererHeritage2(unObj[i]);
+				if(unObj.hasOwnProperty(i)){
+					newObj[i] = createInheritance(unObj[i])
+				}
 			}
 			return newObj;
 		}
 	
-		function nettoyage(obj){
-			if (!obj.relier){
+		/**
+		* remove properties that we use locally
+		*/
+		function clear(obj){
+			if (!obj.isLinked){
 				return;
 			}
 			delete obj.serializationName;
-			delete obj.heritageFait;
-			delete obj.relier;
+			delete obj.inheritanceDone;
+			delete obj.isLinked;
 			for(var i in obj){
-				nettoyage(obj[i])
+				clear(obj[i])
 			}
 		}
-		
-		var tab;
-		parse(chaine);
-		return tab[0];
+
+		parse(str);
+		return allObj[0];
 	}
 
 module.exports = {
-	serializeObjet: serializeObjet,
-	parseChaine: parseChaine
+	serializeObj: serializeObj,
+	parseStr: parseStr
 }
