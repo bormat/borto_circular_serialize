@@ -1,8 +1,13 @@
 # borto_circular_serialize
-This NPM module allow circular reference between object contrary to JSON.stringify
-I don't use JSON.stringify and JSON.parse internally so you can use it with old IE versions if your script is cliend side
+This NPM (and non NPM) module allow circular reference between object contrary to JSON.stringify
+I don't use JSON.stringify and JSON.parse internally so you can use it with old IE versions if your script is client side
 
-Installation:
+If you dont use NPM, include the script 
+		
+		<script src="index.build.js"></script>
+		And the the global object serializeObj and parseStr.
+		
+Else if you use NPM, install the script:
     npm install borto_circular_serialize
   
 First of all import the module:
@@ -32,7 +37,7 @@ And to restore:
 
 Sometimes you want keep the class of object you serialize.
 
-Just add the property serializationName to your object or your class
+Just add the property serializationName to your object or your class prototype.
 
 	var theClass = function(){};
 	theClass.prototype.serializationName = "theClass";
