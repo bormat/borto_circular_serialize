@@ -9,15 +9,18 @@ If you dont use NPM, include the script
 And use the two global object serializeObj and parseStr.
 		
 Else if you use NPM, install the script:
-    npm install borto_circular_serialize
+    	
+	npm install borto_circular_serialize
   
 First of all import the module:
-  	var obj = require('borto_circular_serialize'),
+  	
+	var obj = require('borto_circular_serialize'),
 		serializeObj = obj.serializeObj,
 		parseStr = obj.parseStr
 	;
   
 Or with ES6:
+    
     import {serializeObj,parseStr} from 'borto_circular_serialize';
 
 In order to save you cyclic object use serializeObj:
@@ -26,6 +29,7 @@ In order to save you cyclic object use serializeObj:
     a.d=a; //a contain himself at d position
     var stringBackup = serializeObj(a);
 The content will be
+	
 	[{b:25,
 	c:6,
 	d:'allObj[0]'}]
