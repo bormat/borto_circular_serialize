@@ -5,7 +5,8 @@ I don't use JSON.stringify and JSON.parse internally so you can use it with old 
 If you dont use NPM, include the script 
 		
 		<script src="index.build.js"></script>
-		And the the global object serializeObj and parseStr.
+
+And use the two global object serializeObj and parseStr.
 		
 Else if you use NPM, install the script:
     npm install borto_circular_serialize
