@@ -55,3 +55,7 @@ And to restore you have to pass the prototype that match with the serialization 
 	});
 
 You can send me your comment on github or on my email mathieu.bortolaso@gmail.com
+
+You want to fork the project :
+	Tests can be launch with "npm test"
+	you can build a browser version with the command line "webpack"
